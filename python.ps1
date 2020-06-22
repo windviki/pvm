@@ -57,7 +57,6 @@ if ($local_env.Split(';') -notcontains $PVM_SCRIPT_ROOT)
 {
     Write-Host "This script is not in Env:Path. Initialize the configuration."
     Write-Host "Scan for existing python ..."
-    Write-Host ""
     # Loop until no python is found!
     while (1) 
     {
@@ -142,7 +141,6 @@ if ($local_env.Split(';') -notcontains $PVM_SCRIPT_ROOT)
         {
             Write-Host "OK. No python in Env:Path any more. Just ignore error messages above this line."
             Write-Host "All found python have been configurated."
-            Write-Host ""
             break
         }
     }
@@ -154,7 +152,6 @@ if ($local_env.Split(';') -notcontains $PVM_SCRIPT_ROOT)
 }
 
 Write-Host "Prepare for configuration ..."
-Write-Host ""
 # Remove my path from local env
 $local_env = (
     $local_env.Split(';') | Where-Object { $PVM_SCRIPT_ROOT -ne $_ }
@@ -192,7 +189,6 @@ Write-Host "Merge found python and configurated python ..."
 foreach($v in $PVM_FOUND_PYTHON.keys)
 {
     $p = $PVM_FOUND_PYTHON[$v]
-    Write-Host List found version $v with path $p ...
 
     # Do no have this python in configuration
     if (-Not $PVM_CONFIG.versions.$v)
@@ -205,8 +201,6 @@ foreach($v in $PVM_FOUND_PYTHON.keys)
     }
 }
 
-Write-Host ""
-
 $PVM_REQUIRED_VER = ""
 # Check version args
 # e.g. 
@@ -216,6 +210,7 @@ $PVM_REQUIRED_VER = ""
 $processed_args = [System.Collections.ArrayList]@()
 for($i=0; $i -lt $args.Count; $i++)
 {
+    Write-Host "Arguments $i : " $args[$i]
     # version number or string number
     if ($args[$i] -match "^\-(\d+(\.\d+(\.\d+)?)?)$" -Or $args[$i] -match "^:(.*)$")
     {
@@ -223,7 +218,14 @@ for($i=0; $i -lt $args.Count; $i++)
     }
     else
     {
-        $processed_args.Add($args[$i])
+        if ($args[$i] -match "\s")
+        {
+            $null = $processed_args.Add('"{0}"' -f $args[$i])
+        }
+        else
+        {
+            $null = $processed_args.Add($args[$i])
+        }
     }
 }
 
@@ -296,7 +298,6 @@ $PVM_CONFIG.timestamp = Get-Date -format 'u'
 $PVM_CONFIG | ConvertTo-Json | Set-Content $PVM_CONFIG_PATH
 
 Write-Host "Now use `$PVM_PYTHON_VER = " $PVM_PYTHON_VER ...
-Write-Host ""
 
 # Get the right python root path
 $PVM_PYTHON_ROOT = $PVM_CONFIG.versions.$PVM_PYTHON_VER
