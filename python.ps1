@@ -2,11 +2,8 @@
 ## by viki
 ## windviki@gmail.com
 ##
-## 1. Put this script in any path which does not contain a python.exe
-## 2. Open a Powershell session, run this command to change your Powershell execution policy:
-## Set-ExecutionPolicy RemoteSigned
-## 3. Double-click on this python.ps1
-## 4. Done
+## See readme.md!
+##
 
 # The configuration file
 $PVM_CONFIG_PATH = Join-Path -Path $env:USERPROFILE -ChildPath "pvm.json"
@@ -115,44 +112,45 @@ if ($local_env.Split(';') -notcontains $PVM_SCRIPT_ROOT)
 
             foreach($key in ("Machine", "User"))
             {
-                # # Get current path
-                # $current_path_env = [System.Environment]::GetEnvironmentVariable('PATH', $key)
+                # Get current path
+                $current_path_env = [System.Environment]::GetEnvironmentVariable('PATH', $key)
                 # Write-Host "`$current_path_env for $key" is $current_path_env ...
                 # Write-Host ""
 
-                # # Remove python path
-                # $new_path_env = (
-                #         $current_path_env.Split(';') | Where-Object { $python_path_list -inotcontains $_ }
-                #     ) -join ';'
+                # Remove python path
+                $new_path_env = (
+                        $current_path_env.Split(';') | Where-Object { $python_path_list -inotcontains $_ }
+                    ) -join ';'
 
                 $local_env = (
                     $local_env.Split(';') | Where-Object { $python_path_list -inotcontains $_ }
                 ) -join ';'
 
-                # # Has change
-                # if ($new_path_env.Length -ne $current_path_env.Length)
-                # {
-                #     Write-Host "Now the `$new_path_env for $key" is $new_path_env ...
-                #     Write-Host ""
-                #     # Set new path env (permament)
-                #     [System.Environment]::SetEnvironmentVariable('PATH', $new_path_env, $key)
-                # }
-                Write-Host "Remove this python from $key Env::Path"
+                # Has change
+                if ($new_path_env.Length -ne $current_path_env.Length)
+                {
+                    # Write-Host "Now the `$new_path_env for $key" is $new_path_env ...
+                    # Write-Host ""
+                    # Set new path env (permament)
+                    [System.Environment]::SetEnvironmentVariable('PATH', $new_path_env, $key)
+                }
+
+                Write-Host "Remove this python from $key Env:Path"
             }
         }
         else 
         {
-            Write-Host "OK. No python in Env::Path any more. Just ignore error messages above this line."
+            Write-Host "OK. No python in Env:Path any more. Just ignore error messages above this line."
             Write-Host "All found python have been configurated."
             Write-Host ""
             break
         }
     }
 
-    # # Get current path
-    # $current_path_env = [System.Environment]::GetEnvironmentVariable('PATH', 'USER')
-    # # Add my path env (permament)
-    # [System.Environment]::SetEnvironmentVariable('PATH', ($PVM_SCRIPT_ROOT + ";" + $current_path_env), 'USER')
+    # Get current path
+    $current_path_env = [System.Environment]::GetEnvironmentVariable('PATH', 'USER')
+    # Add my path env (permament)
+    [System.Environment]::SetEnvironmentVariable('PATH', ($PVM_SCRIPT_ROOT + ";" + $current_path_env), 'USER')
 }
 
 Write-Host "Prepare for configuration ..."
@@ -215,7 +213,7 @@ $PVM_REQUIRED_VER = ""
 # python -2
 # python -3.8
 # python :conda
-$private:processed_args = [System.Collections.ArrayList]@()
+$processed_args = [System.Collections.ArrayList]@()
 for($i=0; $i -lt $args.Count; $i++)
 {
     # version number or string number
@@ -230,7 +228,7 @@ for($i=0; $i -lt $args.Count; $i++)
 }
 
 Write-Host "`$PVM_REQUIRED_VER is $PVM_REQUIRED_VER"
-Write-Host ""
+Write-Host "Left arguments: $processed_args"
 
 $PVM_PYTHON_VER = $PVM_REQUIRED_VER
 
@@ -310,5 +308,10 @@ Set-Item -Path Env:Path -Value (($PVM_PYTHON_PATH_LIST + $local_env.Split(';')) 
 # Start python
 $PVM_ALL_ARGS = $PsBoundParameters.Values + $processed_args
 $private:start_python_command = "python $PVM_ALL_ARGS"
+Write-Host "Try: $start_python_command"
 
 Invoke-Expression $start_python_command
+
+# Add my path to local env
+# Set local environment for python path
+Set-Item -Path Env:Path -Value ($PVM_SCRIPT_ROOT + ';' + $local_env)
