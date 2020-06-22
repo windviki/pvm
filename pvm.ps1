@@ -2,11 +2,9 @@
 ## by viki
 ## windviki@gmail.com
 ##
-## 1. Put this script in any path which does not contain a python.exe
-## 2. Open a Powershell session, run this command to change your Powershell execution policy:
-## Set-ExecutionPolicy RemoteSigned
-## 3. Double-click on this pvm.ps1
-## 4. Done
+## This is a planned standalone manager script. 
+## Use it to manipulate the configurations of python.
+## By now, I'll focus on the basic python.ps1 script.
 
 # pvm init
 
@@ -14,20 +12,20 @@
 
 # pvm list-remote
 
-# pvm install
+# pvm install 2.4
 # https://www.python.org/download/releases/2.4/msi/
 # msiexec /qn /i python-2.4.msi TARGETDIR=D:\python24 ALLUSERS=1 REMOVE=Extensions
 
-# pvm uninstall
+# pvm uninstall 2.4
 # msiexec /x python-2.4.msi
 
-# pvm alias
+# pvm alias 2.4 24
 
-# pvm add
+# pvm add 2.7 D:\Python27
 
-# pvm remove
+# pvm remove 2.7
 
-# pvm switch
+# pvm switch 3.8.2
 
 # pvm run
 
