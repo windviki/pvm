@@ -174,7 +174,7 @@ if (-Not ($PVM_CONFIG_PATH | Test-Path))
 $PVM_DEFAULT_CONFIG = @{
     versions = @{};
     last_version = "";
-    timestamp = Get-Date;
+    timestamp = Get-Date -format 'u';
 }
 
 # Read Configuration
@@ -187,10 +187,6 @@ foreach($p in $PVM_DEFAULT_CONFIG.Keys)
         $PVM_CONFIG | Add-Member -Name $p -value $PVM_DEFAULT_CONFIG.$p -MemberType NoteProperty
     }
 }
-
-$private:version_map = @{}
-$PVM_CONFIG.versions.PSObject.Properties | ForEach-Object { $version_map[$_.Name] = $_.Value }
-$PVM_CONFIG.versions = $version_map
 
 Write-Host "Merge found python and configurated python ..."
 
@@ -296,7 +292,7 @@ if (-Not $PVM_CONFIG.versions.$PVM_PYTHON_VER | Test-Path)
 
 # Update the last version 
 $PVM_CONFIG.last_version = $PVM_PYTHON_VER
-$PVM_CONFIG.timestamp = Get-Date
+$PVM_CONFIG.timestamp = Get-Date -format 'u'
 
 # Write Configuration
 $PVM_CONFIG | ConvertTo-Json | Set-Content $PVM_CONFIG_PATH
