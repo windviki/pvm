@@ -211,7 +211,7 @@ $PVM_REQUIRED_VER = ""
 $processed_args = [System.Collections.ArrayList]@()
 for($i=0; $i -lt $args.Count; $i++)
 {
-    Write-Host "Arguments $i : " $args[$i]
+    # Write-Host "Arguments $i : " $args[$i]
     # version number or string number
     if ($args[$i] -match "^\-(\d+(\.\d+(\.\d+)?)?)$" -Or $args[$i] -match "^:(.*)$")
     {

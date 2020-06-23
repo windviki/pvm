@@ -10,14 +10,14 @@ rem
 setlocal enabledelayedexpansion
 
 set targetScirpt=%1
-echo targetScirpt is %targetScirpt%
+rem echo targetScirpt is %targetScirpt%
 
 rem The processed args
 set normArgs=
 
 rem Iteration on the arg list
 for %%x in (%*) do (
-    echo bat args: %%~x
+    rem echo bat args: %%~x
    (
       rem If the argument contains space in it
       for /f "tokens=2" %%A in ("%%~x") do (
