@@ -1,5 +1,12 @@
 @echo off
 
+rem PVM: Python version manager
+rem by viki
+rem windviki@gmail.com
+rem
+rem See readme.md!
+rem
+
 setlocal enabledelayedexpansion
 
 rem The processed args
