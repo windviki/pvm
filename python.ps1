@@ -151,7 +151,7 @@ if ($local_env.Split(';') -notcontains $PVM_SCRIPT_ROOT)
     [System.Environment]::SetEnvironmentVariable('PATH', ($PVM_SCRIPT_ROOT + ";" + $current_path_env), 'USER')
 }
 
-Write-Host "Prepare for configuration ..."
+Write-Host "Load configuration ..."
 # Remove my path from local env
 $local_env = (
     $local_env.Split(';') | Where-Object { $PVM_SCRIPT_ROOT -ne $_ }
@@ -183,22 +183,25 @@ foreach($p in $PVM_DEFAULT_CONFIG.Keys)
     }
 }
 
-Write-Host "Merge found python and configurated python ..."
-
-# Merge the configuration with found python versions 
-foreach($v in $PVM_FOUND_PYTHON.keys)
+if ($PVM_FOUND_PYTHON.Count -ne 0)
 {
-    $p = $PVM_FOUND_PYTHON[$v]
+    Write-Host "Merge found python and configurated python ..."
 
-    # Do no have this python in configuration
-    if (-Not $PVM_CONFIG.versions.$v)
+    # Merge the configuration with found python versions 
+    foreach($v in $PVM_FOUND_PYTHON.keys)
     {
-        $PVM_CONFIG.versions.$v = $p
-    }
-    else
-    {
-        $host.UI.WriteErrorLine("Skip a found python version $v with path $p because it conflicts with your configuration!")
-    }
+        $p = $PVM_FOUND_PYTHON[$v]
+    
+        # Do no have this python in configuration
+        if (-Not $PVM_CONFIG.versions.$v)
+        {
+            $PVM_CONFIG.versions.$v = $p
+        }
+        else
+        {
+            $host.UI.WriteErrorLine("Skip a found python version $v with path $p because it conflicts with your configuration!")
+        }
+    }    
 }
 
 $PVM_REQUIRED_VER = ""
@@ -210,7 +213,7 @@ $PVM_REQUIRED_VER = ""
 $processed_args = [System.Collections.ArrayList]@()
 for($i=0; $i -lt $args.Count; $i++)
 {
-    Write-Host "Arguments $i : " $args[$i]
+    # Write-Host "Arguments $i : " $args[$i]
     # version number or string number
     if ($args[$i] -match "^\-(\d+(\.\d+(\.\d+)?)?)$" -Or $args[$i] -match "^:(.*)$")
     {
@@ -230,7 +233,7 @@ for($i=0; $i -lt $args.Count; $i++)
 }
 
 Write-Host "`$PVM_REQUIRED_VER is $PVM_REQUIRED_VER"
-Write-Host "Left arguments: $processed_args"
+Write-Host "Manipulated arguments: $processed_args"
 
 $PVM_PYTHON_VER = $PVM_REQUIRED_VER
 
@@ -297,7 +300,7 @@ $PVM_CONFIG.timestamp = Get-Date -format 'u'
 # Write Configuration
 $PVM_CONFIG | ConvertTo-Json | Set-Content $PVM_CONFIG_PATH
 
-Write-Host "Now use `$PVM_PYTHON_VER = " $PVM_PYTHON_VER ...
+$host.UI.WriteLine('Green', $host.PrivateData.VerboseBackgroundColor, "Selected version = $PVM_PYTHON_VER")
 
 # Get the right python root path
 $PVM_PYTHON_ROOT = $PVM_CONFIG.versions.$PVM_PYTHON_VER
@@ -309,7 +312,7 @@ Set-Item -Path Env:Path -Value (($PVM_PYTHON_PATH_LIST + $local_env.Split(';')) 
 # Start python
 $PVM_ALL_ARGS = $PsBoundParameters.Values + $processed_args
 $private:start_python_command = "python $PVM_ALL_ARGS"
-Write-Host "Try: $start_python_command"
+$host.UI.WriteLine('Green', $host.PrivateData.VerboseBackgroundColor, "Try use python in $PVM_PYTHON_ROOT to execute: $start_python_command")
 
 Invoke-Expression $start_python_command
 
