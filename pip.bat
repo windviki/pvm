@@ -7,4 +7,4 @@ rem
 rem See readme.md!
 rem
 
-call __pvm_do_not_use_it_directly.bat python.ps1 %*
+call __pvm_do_not_use_it_directly.bat pip.ps1 %*
