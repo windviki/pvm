@@ -17,24 +17,68 @@ windviki@gmail.com
 3. Make sure the .ps1 file is associated with Powershell.exe. Use "Open with ..." menu to change it if it isn't.
    
 4. Add .ps1 into your **System** Environment Variable **PATHEXT**. So we can execute python.ps1 file after initialization, without typing extension ".ps1".
+
+   `$ echo %PATHEXT%`
+
+   `.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.PS1`
    
 5. Double-click on this python.ps1 to run the automatic configuration initialization. If you get a python REPL, it's done.
+
+   ```The script root is D:\research\tools\pvm
+   Remove the 'python' alias in user's Env:Path
+   This script is not in Env:Path. Initialize the configuration.
+   Scan for existing python ...
+   Try to execute 'python', please ignore the error messages below this line ...
+   Found existing Python path: D:\Python37-64\python.exe
+   Found existing Python version:  3.7.6
+   Python root is D:\Python37-64
+   Remove this python from Machine Env:Path
+   Remove this python from User Env:Path
+   Try to execute 'python', please ignore the error messages below this line ...
+   Found existing Python path: D:\Python383-64\python.exe
+   Found existing Python version:  3.8.3
+   Python root is D:\Python383-64
+   Remove this python from Machine Env:Path
+   Remove this python from User Env:Path
+   Try to execute 'python', please ignore the error messages below this line ...
+   无法将“python”项识别为 cmdlet、函数、脚本文件或可运行程序的名称。请检查名称的拼写，如果包括路径，请确保路径正确，然后
+   再试一次。
+      + CategoryInfo          : ObjectNotFound: (python:String) [], CommandNotFoundException
+      + FullyQualifiedErrorId : CommandNotFoundException
+      + PSComputerName        : localhost
+
+   无法将“python”项识别为 cmdlet、函数、脚本文件或可运行程序的名称。请检查名称的拼写，如果包括路径，请确保路径正确，然后
+   再试一次。
+      + CategoryInfo          : ObjectNotFound: (python:String) [], CommandNotFoundException
+      + FullyQualifiedErrorId : CommandNotFoundException
+      + PSComputerName        : localhost
+
+   OK. No python in Env:Path any more. Just ignore error messages above this line.
+   All found python have been configurated.
+   Load configuration ...
+   Merge found python and configurated python ...
+   $PVM_REQUIRED_VER is
+   Manipulated arguments:
+   Selected version = 3
+   Try use python in D:\Python383-64 to execute: python
+   Python 3.8.3 (tags/v3.8.3:6f8c832, May 13 2020, 22:37:02) [MSC v.1924 64 bit (AMD64)] on win32
+   Type "help", "copyright", "credits" or "license" for more information.
+   >>>
+   ```
    
 6. All of your python versions found in Env::Path are configurated now. You can found the configuration file in 
 
    `C:\Users\<UserName>\pvm.json`
 
    ```{
-   "timestamp":  "2020-06-23 10:44:05Z",
+   "timestamp":  "2020-06-23 14:25:35Z",
    "last_version":  "3",
    "versions":  
       {
+         "3.8.3":  "D:\\Python383-64",
+         "383":  "D:\\Python383-64",
          "3.7.6":  "D:\\Python37-64",
          "376":  "D:\\Python37-64",
-         "37":  "D:\\Python37-64",
-         "3.8.3":  "D:\\Python383-64",
-         "3.8":  "D:\\Python383-64",
-         "383":  "D:\\Python383-64",
          "3":  "D:\\Python383-64"
       }
    }
@@ -42,7 +86,7 @@ windviki@gmail.com
 7. Feel free to edit this file to add/remove/rename python versions. Key of version can be any string. e.g. "old", "conda", etc.
 
    ```{
-   "timestamp":  "2020-06-23 10:44:05Z",
+   "timestamp":  "2020-06-23 14:25:35Z",
    "last_version":  "3",
    "versions":  
       {
