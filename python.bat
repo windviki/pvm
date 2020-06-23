@@ -1,10 +1,28 @@
-@ECHO OFF
+@echo off
+
 setlocal enabledelayedexpansion
 
-set argCount=0
+rem The processed args
+set normArgs=
+
+rem Iteration on the arg list
 for %%x in (%*) do (
-   set /A argCount+=1
-   set "argVec[!argCount!]=%%~x"
+   (
+      rem If the argument contains space in it
+      for /f "tokens=2" %%A in ("%%~x") do (
+         rem Quote it with tripple quotes!
+         set normArgs=!normArgs! """%%~x"""
+      )
+   ) || (
+      rem If no space found in argument
+      set normArgs=!normArgs! %%~x
+   )
 )
 
-powershell -command python.ps1 %*
+rem Remove the space at the beginning of normArgs
+for /f "tokens=* delims= " %%a in ("!normArgs!") do set normArgs=%%a
+
+echo Processed args: !normArgs!
+
+rem Call powershell
+powershell -command python.ps1 !normArgs!
