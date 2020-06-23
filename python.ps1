@@ -22,8 +22,6 @@ Catch
 $private:version_regex = "^(\d+(\.\d+(\.\d+)?)?)$"
 $private:PVM_FOUND_PYTHON=@{}
 
-# $PVM_SCRIPT_ROOT = "I:\TN\Segmentation"
-
 if ([string]::IsNullOrEmpty($PVM_SCRIPT_ROOT))
 {
     $host.UI.WriteErrorLine("`$PVM_SCRIPT_ROOT is Null or Empty!")
@@ -113,8 +111,8 @@ if ($local_env.Split(';') -notcontains $PVM_SCRIPT_ROOT)
             {
                 # Get current path
                 $current_path_env = [System.Environment]::GetEnvironmentVariable('PATH', $key)
+                
                 # Write-Host "`$current_path_env for $key" is $current_path_env ...
-                # Write-Host ""
 
                 # Remove python path
                 $new_path_env = (
@@ -129,7 +127,7 @@ if ($local_env.Split(';') -notcontains $PVM_SCRIPT_ROOT)
                 if ($new_path_env.Length -ne $current_path_env.Length)
                 {
                     # Write-Host "Now the `$new_path_env for $key" is $new_path_env ...
-                    # Write-Host ""
+                    
                     # Set new path env (permament)
                     [System.Environment]::SetEnvironmentVariable('PATH', $new_path_env, $key)
                 }
