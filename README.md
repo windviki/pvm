@@ -70,39 +70,107 @@ windviki@gmail.com
 
    `C:\Users\<UserName>\pvm.json`
 
-   ```{
-   "timestamp":  "2020-06-23 14:25:35Z",
-   "last_version":  "3",
-   "versions":  
-      {
-         "3.8.3":  "D:\\Python383-64",
-         "383":  "D:\\Python383-64",
-         "3.7.6":  "D:\\Python37-64",
-         "376":  "D:\\Python37-64",
-         "3":  "D:\\Python383-64"
+   ```
+   {
+      "timestamp":  "2020-06-23 14:25:35Z",
+      "last_version":  "3",
+      "versions": {
+         "3.8.3":  {
+            "virtual":  0,
+            "path":  "D:\\Python383-64",
+            "home":  "D:\\Python383-644"
+         },
+         "383":  {
+            "virtual":  0,
+            "path":  "D:\\Python383-64",
+            "home":  "D:\\Python383-64"
+         },
+         "3.7.6":  {
+            "virtual":  0,
+            "path":  "D:\\Python37-64",
+            "home":  "D:\\python37-64"
+         },
+         "376":  {
+            "virtual":  0,
+            "path":  "D:\\Python37-64",
+            "home":  "D:\\python37-64"
+         },
+         "3":  {
+            "virtual":  0,
+            "path":  "D:\\Python383-64",
+            "home":  "D:\\Python383-64"
+         },
+         "swiftnet37":  {
+            "virtual":  1,
+            "path":  "D:\\pyenvs\\swiftnet37",
+            "home":  "D:\\python37-64"
+         },
+         "dbdev":  {
+            "virtual":  1,
+            "path":  "D:\\pyenvs\\dbdev",
+            "home":  "D:\\Python37-64"
+         }
       }
    }
+   ```
 
 7. Feel free to edit this file to add/remove/rename python versions. Key of version can be any string. e.g. "old", "conda", etc.
 
-   ```{
-   "timestamp":  "2020-06-23 14:25:35Z",
-   "last_version":  "3",
-   "versions":  
-      {
-         "2.7.18":  "D:\\Python2718",
-         "3.7.4":  "D:\\Python37-32",
-         "374":  "D:\\Python37-32",
-         "old":  "D:\\Python37-32",
-         "3.7.6":  "D:\\Python37-64",
-         "3.7":  "D:\\Python37-64",
-         "376":  "D:\\Python37-64",
-         "37":  "D:\\Python37-64",
-         "3.8.3":  "D:\\Python383-64",
-         "3.8":  "D:\\Python383-64",
-         "383":  "D:\\Python383-64",
-         "38":  "D:\\Python383-64",
-         "3":  "D:\\Python383-64"
+   ```
+   {
+      "timestamp":  "2020-06-23 14:25:35Z",
+      "last_version":  "3",
+      "versions": {
+         "old":  {
+            "virtual":  0,
+            "path":  "D:\\Python2718",
+            "home":  "D:\\Python2718"
+         },
+         "2.7.18":  {
+            "virtual":  0,
+            "path":  "D:\\Python2718",
+            "home":  "D:\\Python2718"
+         },
+         "conda":  {
+            "virtual":  0,
+            "path":  "D:\\Python3",
+            "home":  "D:\\Python3"
+         },
+         "3.8.3":  {
+            "virtual":  0,
+            "path":  "D:\\Python383-64",
+            "home":  "D:\\Python383-644"
+         },
+         "383":  {
+            "virtual":  0,
+            "path":  "D:\\Python383-64",
+            "home":  "D:\\Python383-64"
+         },
+         "3.7.6":  {
+            "virtual":  0,
+            "path":  "D:\\Python37-64",
+            "home":  "D:\\python37-64"
+         },
+         "376":  {
+            "virtual":  0,
+            "path":  "D:\\Python37-64",
+            "home":  "D:\\python37-64"
+         },
+         "3":  {
+            "virtual":  0,
+            "path":  "D:\\Python383-64",
+            "home":  "D:\\Python383-64"
+         },
+         "swiftnet37":  {
+            "virtual":  1,
+            "path":  "D:\\pyenvs\\swiftnet37",
+            "home":  "D:\\python37-64"
+         },
+         "dbdev":  {
+            "virtual":  1,
+            "path":  "D:\\pyenvs\\dbdev",
+            "home":  "D:\\Python37-64"
+         }
       }
    }
    ```
@@ -121,10 +189,12 @@ windviki@gmail.com
    And you can use it without version hint so that it will use the last (or the default) vesion automatically.
    
 
+9. Now pvm scans virtual environments (Env:WORKON_HOME). The version_name can be virtualenv name.
 
-## TODO:
+    `python -mynlpenv example.py`
+    
+    `workon mynlpenv`
 
-1. Scan virtual environments. (Env:WORKON_HOME)
-
-2. The version_name can be virtualenv name.
-
+   'workon' will keep the activated python env in console just like how virtualenv workon works. 
+   
+   But virtual envs created after the initialization will not be added into PVM configuration automatically (We don't want to scan the venv dirs every time). So you can add your virtual envs into configuration by hand.
