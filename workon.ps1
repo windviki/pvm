@@ -30,4 +30,4 @@ for($i=0; $i -lt $argumentList.Count; $i++)
     }
 }
 # Write-Host "Input argumentList: $processedArgs"
-$env:PVM_TARGET_APP = 'python'; Invoke-Expression "& `"$scriptPath`" $processedArgs"
+$env:PVM_TARGET_APP = 'workon'; Invoke-Expression "& `"$scriptPath`" $processedArgs"

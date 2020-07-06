@@ -50,6 +50,8 @@ $local_env = (
 # Set local environment for python path
 Set-Item -Path Env:Path -Value $local_env
 
+# Virtual envs
+$PVM_VENVS = @{}
 
 if ($local_env.Split(';') -notcontains $PVM_SCRIPT_ROOT)
 {
@@ -147,6 +149,24 @@ if ($local_env.Split(';') -notcontains $PVM_SCRIPT_ROOT)
     $current_path_env = [System.Environment]::GetEnvironmentVariable('PATH', 'USER')
     # Add my path env (permament)
     [System.Environment]::SetEnvironmentVariable('PATH', ($PVM_SCRIPT_ROOT + ";" + $current_path_env), 'USER')
+
+    # Scan the virtual envs
+    $private:venvs_home = $env:WORKON_HOME
+    if (-Not [string]::IsNullOrEmpty($venvs_home))
+    {
+        foreach($vdir in Get-Childitem -Path $venvs_home)
+        {
+            $venv_name = $vdir.Name
+            $cfg_file = Join-Path $venvs_home ( Join-Path $venv_name 'pyvenv.cfg' )
+            if ($cfg_file | Test-Path)
+            {
+                $lines = (Get-Content $cfg_file -Raw) -replace '\\', '\\'
+                $kvs = ConvertFrom-StringData -StringData $lines
+                $PVM_VENVS.$venv_name = $kvs.home
+                Write-Host "Found virtual env $venv_name, home $($kvs.home)"
+            }
+        }
+    }
 }
 
 Write-Host "Load configuration ..."
@@ -193,13 +213,30 @@ if ($PVM_FOUND_PYTHON.Count -ne 0)
         # Do no have this python in configuration
         if (-Not $PVM_CONFIG.versions.$v)
         {
-            $PVM_CONFIG.versions.$v = $p
+            $version_info = @{'path'=$p; 'virtual'=0; 'home'=$p}
+            $PVM_CONFIG.versions.$v = $version_info
         }
         else
         {
             $host.UI.WriteErrorLine("Skip a found python version $v with path $p because it conflicts with your configuration!")
         }
-    }    
+    }
+
+    foreach($v in $PVM_VENVS.keys)
+    {
+        $p = $PVM_VENVS[$v]
+    
+        # Do no have this python in configuration
+        if (-Not $PVM_CONFIG.versions.$v)
+        {
+            $version_info = @{'path'=Join-Path $env:WORKON_HOME $v; 'virtual'=1; 'home'=$p}
+            $PVM_CONFIG.versions.$v = $version_info
+        }
+        else
+        {
+            $host.UI.WriteErrorLine("Skip a found venv version $v with path $p because it conflicts with your configuration!")
+        }
+    }
 }
 
 $PVM_REQUIRED_VER = ""
@@ -230,6 +267,11 @@ for($i=0; $i -lt $args.Count; $i++)
     }
 }
 
+if ($env:PVM_TARGET_APP -eq 'workon')
+{
+    $PVM_REQUIRED_VER = $args[0]
+}
+
 Write-Host "`$PVM_REQUIRED_VER is $PVM_REQUIRED_VER"
 Write-Host "Manipulated arguments: $processed_args"
 
@@ -254,7 +296,7 @@ if ([string]::IsNullOrEmpty($PVM_REQUIRED_VER))
         {
             if ($PVM_FOUND_PYTHON.Count -eq 0 -And $PVM_CONFIG.versions.PSobject.Properties.Name.Count -eq 0)
             {
-                $host.UI.WriteErrorLine("`Cannot find any python! Please update your configurations at $PVM_CONFIG_PATH")
+                $host.UI.WriteErrorLine("Cannot find any python! Please update your configurations at $PVM_CONFIG_PATH")
                 exit 1
             }
             elseif ($PVM_FOUND_PYTHON.Count -ne 0)
@@ -280,12 +322,12 @@ if (-Not $PVM_CONFIG.versions.$PVM_PYTHON_VER)
     $host.UI.WriteErrorLine("Cannot find version '$PVM_PYTHON_VER' in configuration!")
     exit 1
 }
-if ([string]::IsNullOrEmpty($PVM_CONFIG.versions.$PVM_PYTHON_VER))
+if ([string]::IsNullOrEmpty($PVM_CONFIG.versions.$PVM_PYTHON_VER.home))
 {
     $host.UI.WriteErrorLine("Found empty python path for version '$PVM_PYTHON_VER' in configuration!")
     exit 1
 }
-if (-Not $PVM_CONFIG.versions.$PVM_PYTHON_VER | Test-Path)
+if (-Not $PVM_CONFIG.versions.$PVM_PYTHON_VER.home | Test-Path)
 {
     $host.UI.WriteErrorLine("Found invalid python path '$PVM_CONFIG.versions.$PVM_PYTHON_VER' for version '$PVM_PYTHON_VER' in configuration!")
     exit 1
@@ -301,19 +343,28 @@ $PVM_CONFIG | ConvertTo-Json | Set-Content $PVM_CONFIG_PATH
 $host.UI.WriteLine('Green', $host.PrivateData.VerboseBackgroundColor, "Selected version = $PVM_PYTHON_VER")
 
 # Get the right python root path
-$PVM_PYTHON_ROOT = $PVM_CONFIG.versions.$PVM_PYTHON_VER
+$PVM_PYTHON_ROOT = $PVM_CONFIG.versions.$PVM_PYTHON_VER.home
 $PVM_PYTHON_PATH_LIST = $PVM_PYTHON_ROOT, (Join-Path -Path $PVM_PYTHON_ROOT -ChildPath "Scripts"), (Join-Path -Path $PVM_PYTHON_ROOT -ChildPath "DLLs")
 
 # Set local environment for python path
 Set-Item -Path Env:Path -Value (($PVM_PYTHON_PATH_LIST + $local_env.Split(';')) -join ';')
 
-# Start python
-$PVM_ALL_ARGS = $PsBoundParameters.Values + $processed_args
-$private:start_python_command = "$env:PVM_TARGET_APP $PVM_ALL_ARGS"
-$host.UI.WriteLine('Green', $host.PrivateData.VerboseBackgroundColor, "Try use $env:PVM_TARGET_APP in $PVM_PYTHON_ROOT to execute: $start_python_command")
+if ($PVM_CONFIG.versions.$PVM_PYTHON_VER.virtual -eq '1')
+{
+    $active_ps = Join-Path $PVM_CONFIG.versions.$PVM_PYTHON_VER.path (Join-Path "Scripts" "activate.ps1")
+    & $active_ps
+}
 
-Invoke-Expression $start_python_command
-
-# Add my path to local env
-# Set local environment for python path
-Set-Item -Path Env:Path -Value ($PVM_SCRIPT_ROOT + ';' + $local_env)
+if ($env:PVM_TARGET_APP -ne 'workon')
+{
+    # Start python
+    $PVM_ALL_ARGS = $PsBoundParameters.Values + $processed_args
+    $private:start_python_command = "$env:PVM_TARGET_APP $PVM_ALL_ARGS"
+    $host.UI.WriteLine('Green', $host.PrivateData.VerboseBackgroundColor, "Try use $env:PVM_TARGET_APP in $PVM_PYTHON_ROOT to execute: $start_python_command")
+    
+    Invoke-Expression $start_python_command
+    
+    # Add my path to local env
+    # Set local environment for python path
+    Set-Item -Path Env:Path -Value ($PVM_SCRIPT_ROOT + ';' + $local_env + ';' + ($PVM_PYTHON_PATH_LIST -join ';'))
+}

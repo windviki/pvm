@@ -4,7 +4,17 @@
 ##
 ## See readme.md!
 ##
-$scriptPath = "__pvm_do_not_use_it_directly.ps1"
+$PVM_SCRIPT_ROOT = ""
+Try
+{
+    $PVM_SCRIPT_ROOT = Get-Variable -Name PSScriptRoot -ValueOnly -ErrorAction Stop
+}
+Catch
+{
+    $PVM_SCRIPT_ROOT = Split-Path $script:MyInvocation.MyCommand.Path
+}
+
+$scriptPath = Join-Path $PVM_SCRIPT_ROOT "__pvm_do_not_use_it_directly.ps1"
 $argumentList = $PsBoundParameters.Values + $args
 $processedArgs = [System.Collections.ArrayList]@()
 for($i=0; $i -lt $argumentList.Count; $i++)
