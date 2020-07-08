@@ -29,7 +29,7 @@ if ([string]::IsNullOrEmpty($PVM_SCRIPT_ROOT))
 }
 else 
 {
-    Write-Host "The script root is $PVM_SCRIPT_ROOT"
+    # Write-Host "The script root is $PVM_SCRIPT_ROOT"
 }
 
 Function Wait-Expression
@@ -43,7 +43,7 @@ $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";
 $private:local_env = $Env:Path
 
 # Remove the alias name 'python' on win10
-Write-Host "Remove the 'python' alias in user's Env:Path"
+# Write-Host "Remove the 'python' alias in user's Env:Path"
 $local_env = (
     $local_env.Split(';') | Where-Object { $_ -inotcontains "%USERPROFILE%\AppData\Local\Microsoft\WindowsApps" }
 ) -join ';'
@@ -272,8 +272,8 @@ if ($env:PVM_TARGET_APP -eq 'workon')
     $PVM_REQUIRED_VER = $args[0]
 }
 
-Write-Host "`$PVM_REQUIRED_VER is $PVM_REQUIRED_VER"
-Write-Host "Manipulated arguments: $processed_args"
+# Write-Host "`$PVM_REQUIRED_VER is $PVM_REQUIRED_VER"
+# Write-Host "Manipulated arguments: $processed_args"
 
 $PVM_PYTHON_VER = $PVM_REQUIRED_VER
 
@@ -349,6 +349,7 @@ if ($PVM_CONFIG.versions.$PVM_PYTHON_VER.virtual -eq '1')
     $mark = '*'
 }
 Set-Item -Path Env:PVM_LAST_VERSION -Value $mark$PVM_PYTHON_VER$mark
+Set-Item -Path Env:PROMPT -Value "[PVM $Env:PVM_LAST_VERSION] `$P`$G"
 
 function global:prompt 
 {
