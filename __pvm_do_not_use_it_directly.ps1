@@ -353,7 +353,7 @@ Set-Item -Path Env:PROMPT -Value "[PVM $Env:PVM_LAST_VERSION] `$P`$G"
 
 function global:prompt 
 {
-    "PS [PVM $Env:PVM_LAST_VERSION]> "
+    "PS [PVM $Env:PVM_LAST_VERSION] $(Get-Item $pwd)> "
 }
 
 # Get the right python root path
