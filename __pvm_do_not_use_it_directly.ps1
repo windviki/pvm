@@ -342,18 +342,42 @@ $PVM_CONFIG | ConvertTo-Json | Set-Content $PVM_CONFIG_PATH
 
 $host.UI.WriteLine('Green', $host.PrivateData.VerboseBackgroundColor, "Selected version = $PVM_PYTHON_VER")
 
+# For prompt
+$mark = ''
+if ($PVM_CONFIG.versions.$PVM_PYTHON_VER.virtual -eq '1')
+{
+    $mark = '*'
+}
+Set-Item -Path Env:PVM_LAST_VERSION -Value $mark$PVM_PYTHON_VER$mark
+
+function global:prompt 
+{
+    "PS [PVM $Env:PVM_LAST_VERSION]> "
+}
+
 # Get the right python root path
-$PVM_PYTHON_ROOT = $PVM_CONFIG.versions.$PVM_PYTHON_VER.home
-$PVM_PYTHON_PATH_LIST = $PVM_PYTHON_ROOT, (Join-Path -Path $PVM_PYTHON_ROOT -ChildPath "Scripts"), (Join-Path -Path $PVM_PYTHON_ROOT -ChildPath "DLLs")
+if ($PVM_CONFIG.versions.$PVM_PYTHON_VER.virtual -eq '1')
+{
+    $PVM_PYTHON_ROOT = Join-Path -Path $PVM_CONFIG.versions.$PVM_PYTHON_VER.path -ChildPath "Scripts"
+    if ($env:PVM_TARGET_APP -eq 'workon')
+    {
+        # add PVM path
+        $PVM_PYTHON_PATH_LIST = $PVM_SCRIPT_ROOT, $PVM_PYTHON_ROOT
+    }
+    else
+    {
+        # add the real path of python
+        $PVM_PYTHON_PATH_LIST = $PVM_PYTHON_ROOT, $PVM_CONFIG.versions.$PVM_PYTHON_VER.home
+    }
+}
+else 
+{
+    $PVM_PYTHON_ROOT = $PVM_CONFIG.versions.$PVM_PYTHON_VER.home
+    $PVM_PYTHON_PATH_LIST = $PVM_PYTHON_ROOT, (Join-Path -Path $PVM_PYTHON_ROOT -ChildPath "Scripts"), (Join-Path -Path $PVM_PYTHON_ROOT -ChildPath "DLLs")    
+}
 
 # Set local environment for python path
 Set-Item -Path Env:Path -Value (($PVM_PYTHON_PATH_LIST + $local_env.Split(';')) -join ';')
-
-if ($PVM_CONFIG.versions.$PVM_PYTHON_VER.virtual -eq '1')
-{
-    $active_ps = Join-Path $PVM_CONFIG.versions.$PVM_PYTHON_VER.path (Join-Path "Scripts" "activate.ps1")
-    & $active_ps
-}
 
 if ($env:PVM_TARGET_APP -ne 'workon')
 {
@@ -362,9 +386,15 @@ if ($env:PVM_TARGET_APP -ne 'workon')
     $private:start_python_command = "$env:PVM_TARGET_APP $PVM_ALL_ARGS"
     $host.UI.WriteLine('Green', $host.PrivateData.VerboseBackgroundColor, "Try use $env:PVM_TARGET_APP in $PVM_PYTHON_ROOT to execute: $start_python_command")
     
+    # Write-Host "envs: $Env:Path"
+
     Invoke-Expression $start_python_command
     
     # Add my path to local env
     # Set local environment for python path
     Set-Item -Path Env:Path -Value ($PVM_SCRIPT_ROOT + ';' + $local_env + ';' + ($PVM_PYTHON_PATH_LIST -join ';'))
+}
+else
+{
+    $host.UI.WriteLine('Green', $host.PrivateData.VerboseBackgroundColor, "Switch to use virtual env in: $PVM_PYTHON_ROOT")
 }
